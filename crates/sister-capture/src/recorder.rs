@@ -7320,6 +7320,86 @@ mod tests {
     }
 
     #[test]
+    fn clipboard_payload_over_limit_is_truncated_before_storage() {
+        let max = sister_core::redact::CLIPBOARD_MAX_BYTES;
+        let oversized_clipboard = "a".repeat(max + 100);
+        let mut r = recorder(
+            vec![Step {
+                at_ms: 0,
+                app: Some("code.exe".into()),
+                clipboard_source_app: Some("code.exe".into()),
+                text: vec!["長文字".into()],
+                clipboard: Some(oversized_clipboard),
+                ..Default::default()
+            }],
+            Config::default(),
+        );
+
+        r.tick(0).expect("tick");
+        assert_eq!(r.stats().secrets_redacted, 0);
+
+        let st = r.db().stats().expect("stats");
+        assert_eq!(st.clipboard_events, 1, "the event is kept");
+
+        let truncated: i64 = r
+            .db()
+            .conn()
+            .query_row("SELECT truncated FROM clipboard_events", [], |row| row.get(0))
+            .expect("query");
+        assert_eq!(truncated, 1);
+
+        let text: Option<String> = r
+            .db()
+            .conn()
+            .query_row("SELECT text FROM clipboard_events", [], |row| row.get(0))
+            .expect("query");
+
+        let text = text.expect("has text");
+        assert_eq!(text.len(), max, "the content must be strictly truncated to the limit");
+    }
+
+    #[test]
+    fn large_clipboard_secret_is_dropped_entirely() {
+        let max = sister_core::redact::CLIPBOARD_MAX_BYTES;
+        let mut oversized_clipboard = "a".repeat(max + 100);
+        oversized_clipboard.push_str(" sk-proj-abc123def456ghi789jkl");
+
+        let mut r = recorder(
+            vec![Step {
+                at_ms: 0,
+                app: Some("code.exe".into()),
+                clipboard_source_app: Some("code.exe".into()),
+                text: vec!["長文字".into()],
+                clipboard: Some(oversized_clipboard),
+                ..Default::default()
+            }],
+            Config::default(),
+        );
+
+        r.tick(0).expect("tick");
+        assert_eq!(r.stats().secrets_redacted, 1);
+
+        let st = r.db().stats().expect("stats");
+        assert_eq!(st.clipboard_events, 1, "the event is kept");
+
+        let suspected: i64 = r
+            .db()
+            .conn()
+            .query_row("SELECT secret_suspected FROM clipboard_events", [], |row| {
+                row.get(0)
+            })
+            .expect("query");
+        assert_eq!(suspected, 1);
+
+        let text: Option<String> = r
+            .db()
+            .conn()
+            .query_row("SELECT text FROM clipboard_events", [], |row| row.get(0))
+            .expect("query");
+        assert_eq!(text, None, "the content column must be empty");
+    }
+
+    #[test]
     fn clipboard_secret_is_dropped_before_it_touches_the_database() {
         let mut r = recorder(
             vec![Step {
