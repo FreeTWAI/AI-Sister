@@ -692,6 +692,8 @@ Phase 0 的七天自我錄製與磁碟預算還沒達成；CPU／RAM 的真機�
 
 | 文件 | 內容 |
 |---|---|
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API Reference: Overview of core modules |
+| [docs/DEVELOPER_USAGE.md](docs/DEVELOPER_USAGE.md) | Developer Usage: Build, test, and CLI usage |
 | [docs/PRODUCT.md](docs/PRODUCT.md) | Final Product 定義：定位、信條、killer scenarios、競品、護城河、non-goals |
 | [docs/SPEC.md](docs/SPEC.md) | Final Spec：四層真相模型、五個子系統、隱私架構、成本模型、技術選型、懸案判決 |
 | [docs/PHASES.md](docs/PHASES.md) | Phase 0–8 里程碑：每階段退役一個致命風險，附可量測 exit criteria |
