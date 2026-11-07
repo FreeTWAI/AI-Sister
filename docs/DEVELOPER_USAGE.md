@@ -50,6 +50,13 @@ To run the workspace tests:
 cargo test --workspace
 ```
 
+To run tests for a specific crate, use the `-p` flag:
+
+```bash
+cargo test -p sister-capture
+cargo test -p sister-hands
+```
+
 For Windows-specific tests (if you are on Windows or using the cross-check script on Linux):
 
 ```bash
