@@ -13,6 +13,9 @@ The platform-agnostic core of AI-Sister. It handles memory, database storage, pr
 - **`brain`**: Interacts with the user-configured CLI agent for L2 assumptions and memory queries.
 - **`consent`**: Manages the privacy consents necessary for recording, processing, and outbound data.
 
+### `sister-hands`
+The platform-independent suggest-level hands boundary. It handles the policy checks and actions that can manipulate the system (like opening URLs), ensuring safety boundaries (such as unattended URL policy).
+
 ### `sister-capture`
 Handles platform-specific screen capture, OCR, and accessibility (UIA, AX) context extraction.
 
